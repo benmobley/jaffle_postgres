@@ -1,7 +1,21 @@
 services:
+  pg:
+    image: postgres:16
+    container_name: jaffle_pg
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: jaffle
+    ports: ["5432:5432"]
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
   metabase:
     image: metabase/metabase:latest
     container_name: jaffle_metabase
     ports: ["3000:3000"]
     depends_on:
       - pg
+
+volumes:
+  pg_data:
