@@ -143,30 +143,30 @@ Create the raw schema once:
 
 ## Project Structure (key folders)
 
-  jaffle_postgres/
-  dbt_project.yml
-  profiles.yml (local, in ~/.dbt)
-  models/
-    staging/
-      olist/
-        stg_olist_customers.sql
-        stg_olist_orders.sql
-        stg_olist_order_items.sql
-        stg_olist_payments.sql
-    marts/
-      olist/
-        dim_olist_customer.sql
-        fact_olist_orders.sql
-        metrics/
-          monthly_revenue.sql
-          cancellation_rate.sql
-          top_customers.sql
-  seeds/
-    olist/
-      olist_customers_dataset.csv
-      olist_orders_dataset.csv
-      olist_order_items_dataset.csv
-      olist_order_payments_dataset.csv
+  jaffle_postgres/\n
+  dbt_project.yml\n
+  profiles.yml (local, in ~/.dbt)\n
+  models/\n
+    staging/\n
+      olist/\n
+        stg_olist_customers.sql\n
+        stg_olist_orders.sql\n
+        stg_olist_order_items.sql\n
+        stg_olist_payments.sql\n
+    marts/\n
+      olist/\n
+        dim_olist_customer.sql\n
+        fact_olist_orders.sql\n
+        metrics/\n
+          monthly_revenue.sql\n
+          cancellation_rate.sql\n
+          top_customers.sql\n
+  seeds/\n
+    olist/\n
+      olist_customers_dataset.csv\n
+      olist_orders_dataset.csv\n
+      olist_order_items_dataset.csv\n
+      olist_order_payments_dataset.csv\n
 
 ## Future Improvements
 
