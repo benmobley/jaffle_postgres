@@ -1,0 +1,84 @@
+name: dbt Test and Validate
+
+on:
+    push:
+        branches: [main, develop]
+        paths:
+            - "models/**"
+            - "tests/**"
+            - "seeds/**"
+            - "macros/**"
+            - "dbt_project.yml"
+            - "packages.yml"
+    pull_request:
+        branches: [main, develop]
+        paths:
+            - "models/**"
+            - "tests/**"
+            - "seeds/**"
+            - "macros/**"
+            - "dbt_project.yml"
+            - "packages.yml"
+
+jobs:
+    dbt-test:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:15
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: jaffle_postgres_dev
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+                ports:
+                    - 5432:5432
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.11"
+                  cache: "pip"
+
+            - name: Install dbt and dependencies
+              run: |
+                  pip install --upgrade pip
+                  pip install dbt-postgres==1.7.0
+                  dbt deps
+
+            - name: Validate dbt project
+              run: dbt parse
+
+            - name: Run dbt tests
+              env:
+                  DBT_PROFILES_DIR: ${{ github.workspace }}
+                  POSTGRES_HOST: localhost
+                  POSTGRES_USER: postgres
+                  POSTGRES_PASSWORD: postgres
+                  POSTGRES_PORT: 5432
+                  POSTGRES_DBNAME: jaffle_postgres_dev
+              run: |
+                  dbt seed
+                  dbt run
+                  dbt test
+
+            - name: Generate dbt docs
+              if: always()
+              run: dbt docs generate
+
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v3
+              with:
+                  name: dbt-test-results
+                  path: |
+                      target/run_results.json
+                      target/index.html
