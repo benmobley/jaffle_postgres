@@ -1,6 +1,6 @@
 # Olist E-commerce Analytics Pipeline (dbt + Postgres + Metabase)
 
-This project builds an end-to-end analytics pipeline on the **Olist Brazilian e-commerce dataset** using **dbt**, **Postgres**, and **Metabase**.  
+This project builds an end-to-end analytics pipeline on the **Olist Brazilian e-commerce dataset** using **dbt**, **Postgres**, and **Metabase**.
 
 Raw CSVs are loaded into Postgres, transformed with dbt into clean **staging**, **dimension**, **fact**, and **metrics** models, and then visualized in a simple KPI dashboard.
 
@@ -8,10 +8,10 @@ Raw CSVs are loaded into Postgres, transformed with dbt into clean **staging**, 
 
 ## Tech Stack
 
-- **dbt (dbt-postgres)** – SQL transformations, tests, and documentation  
-- **PostgreSQL** – data warehouse  
-- **Python + venv** – environment management  
-- **Docker + Metabase** – lightweight BI/dashboard  
+- **dbt (dbt-postgres)** – SQL transformations, tests, and documentation
+- **PostgreSQL** – data warehouse
+- **Python + venv** – environment management
+- **Docker + Metabase** – lightweight BI/dashboard
 - **Olist Brazilian E-commerce dataset** – public source data (customers, orders, items, payments)
 
 ---
@@ -51,12 +51,12 @@ Lineage example:
 
 dbt tests are used to keep the models trustworthy:
 
-- `unique` / `not_null` on primary keys:  
-  - `customer_id`, `order_id`, etc.  
+- `unique` / `not_null` on primary keys:
+  - `customer_id`, `order_id`, etc.
 - Basic integrity checks on metrics:
-  - `monthly_revenue.month` is unique / not null  
-  - `cancellation_rate.cancellation_rate` is not null  
-  - `top_customers.customer_id` is unique / not null  
+  - `monthly_revenue.month` is unique / not null
+  - `cancellation_rate.cancellation_rate` is not null
+  - `top_customers.customer_id` is unique / not null
 
 Run all models + tests:
 
@@ -64,7 +64,10 @@ Run all models + tests:
 dbt build
 
 
-## Dashboard (Metabase)
+dbt build
+
+
+## Data Quality & Testing
 
 A Metabase dashboard called “Olist KPIs” exposes three core KPIs:
 	1.	Monthly Revenue – line chart of revenue by month
@@ -177,4 +180,4 @@ Create the raw schema once:
   	•	Add snapshots for slowly changing customer attributes
   	•	Automate dbt build via GitHub Actions CI
   	•	Add more product-level metrics (e.g., category-level revenue, repeat purchase behavior)
-
+```
