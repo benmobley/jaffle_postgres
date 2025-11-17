@@ -1,5 +1,0 @@
-id,order_id,payment_method,amount
-9001,101,credit_card,39.90
-9002,102,credit_card,12.00
-9003,103,gift_card,18.50
-9004,104,credit_card,24.00

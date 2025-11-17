@@ -5,28 +5,31 @@ Modern e-commerce analytics pipeline transforming Olist Brazilian dataset into a
 ## 📊 What This Does
 
 Transforms raw e-commerce data into clean, tested analytics models:
+
 - **Staging**: Clean customer, order, and payment data
 - **Marts**: Dimensional models (customers, orders) + key metrics (revenue, cancellation rates)
 - **Dashboard**: Metabase visualizations for business KPIs
 
 ## 🔧 Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| **Transformations** | dbt (SQL) |
-| **Database** | PostgreSQL |
-| **Orchestration** | Docker Compose |
-| **Visualization** | Metabase |
-| **CI/CD** | GitHub Actions |
+| Component           | Technology     |
+| ------------------- | -------------- |
+| **Transformations** | dbt (SQL)      |
+| **Database**        | PostgreSQL     |
+| **Orchestration**   | Docker Compose |
+| **Visualization**   | Metabase       |
+| **CI/CD**           | GitHub Actions |
 
 ## 🚀 Quick Start
 
 1. **Start services**
+
    ```bash
    docker-compose up -d
    ```
 
 2. **Run dbt pipeline**
+
    ```bash
    dbt deps
    dbt seed
@@ -41,11 +44,13 @@ Transforms raw e-commerce data into clean, tested analytics models:
 ## 📈 Data Models
 
 ### Architecture
+
 ```
 Raw Seeds → Staging Models → Dimensional & Fact Tables → Analytics Marts
 ```
 
 ### Key Models
+
 - `dim_customer` - Customer attributes
 - `fact_orders` - Order transactions with totals
 - `monthly_revenue` - Revenue trends over time
@@ -55,6 +60,7 @@ Raw Seeds → Staging Models → Dimensional & Fact Tables → Analytics Marts
 ## ✅ Data Quality
 
 Comprehensive testing ensures data reliability:
+
 - **Uniqueness** & **completeness** checks on all primary keys
 - **Referential integrity** between fact/dimension tables
 - **Business logic** validation (positive amounts, valid statuses)
@@ -79,7 +85,14 @@ models/
 ## 🔄 CI/CD
 
 Automated testing runs on every push:
+
 - **SQL validation** with SQLFluff
 - **dbt parse** & **test** execution
 - **Documentation** generation
 - **Pre-commit hooks** for code quality
+
+## 📊 Lineage Screenshot
+
+![dbt Lineage Graph](https://github.com/user-attachments/assets/screenshot-lineage.png)
+
+The lineage graph shows the complete data flow from raw Olist datasets through staging models to final business marts and analytics tables.

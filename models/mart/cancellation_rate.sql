@@ -16,7 +16,7 @@ monthly_aggregates as (
     select
         cancellation_month,
         sum(order_count) as total_orders,
-        sum(case when status = 'cancelled' then order_count else 0 end)
+        sum(case when status = 'canceled' then order_count else 0 end)
             as cancelled_orders
     from monthly_statuses
     group by cancellation_month

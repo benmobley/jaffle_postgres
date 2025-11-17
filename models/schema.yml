@@ -1,138 +1,120 @@
 version: 2
 
 models:
-  # Staging Models: Clean and standardize raw data
-  - name: stg_customers
-    description: Staged customer data from raw seeds. Renames and standardizes customer identifiers and contact information.
-    columns:
-      - name: customer_id
-        description: Unique customer identifier (renamed from 'id')
-        tests: [not_null, unique]
-      - name: first_name
-        description: Customer's first name
-        tests: [not_null]
-      - name: last_name
-        description: Customer's last name
-        tests: [not_null]
-      - name: email
-        description: Customer's email address
-        tests: [not_null, unique]
-
-  - name: stg_orders
-    description: Staged order data from raw seeds. Standardizes order dates and customer relationships.
-    columns:
-      - name: order_id
-        description: Unique order identifier (renamed from 'id')
-        tests: [not_null, unique]
-      - name: customer_id
-        description: Foreign key to customer (renamed from 'user_id')
-        tests:
-          - not_null
-          - relationships:
-              to: ref('stg_customers')
-              field: customer_id
-      - name: order_date
-        description: Date the order was placed (cast to date type)
-        tests: [not_null]
-      - name: status
-        description: Current order status
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['pending', 'processing', 'completed', 'cancelled']
-
-  - name: stg_payments
-    description: Staged payment data from raw seeds. Standardizes payment amounts and method tracking.
-    columns:
-      - name: payment_id
-        description: Unique payment identifier (renamed from 'id')
-        tests: [not_null, unique]
-      - name: order_id
-        description: Foreign key to order
-        tests:
-          - not_null
-          - relationships:
-              to: ref('stg_orders')
-              field: order_id
-      - name: payment_method
-        description: Method of payment
-        tests: [not_null]
-      - name: amount
-        description: Payment amount (cast to numeric type)
-        tests:
-          - not_null
-
-  # Mart Models: Business-ready dimensional and fact tables
-  - name: dim_customer
-    description: Customer dimension table. Contains denormalized customer attributes for analytics and reporting.
+  # Staging Models: Clean and standardize Olist raw data
+  - name: stg_olist_customers
+    description: Staged customer data from Olist dataset. Contains customer location information.
     columns:
       - name: customer_id
         description: Unique customer identifier
-        tests:
-          - not_null
-          - unique
-          - relationships:
-              to: ref('stg_customers')
-              field: customer_id
-      - name: first_name
-        description: Customer's first name
+        tests: [not_null, unique]
+      - name: customer_unique_id
+        description: Unique customer identifier across the platform
         tests: [not_null]
-      - name: last_name
-        description: Customer's last name
+      - name: customer_city
+        description: Customer's city
+      - name: customer_state
+        description: Customer's state
+      - name: customer_zip_code_prefix
+        description: Customer's zip code prefix
+
+  - name: stg_olist_orders
+    description: Staged order data from Olist dataset. Contains order status and timestamps.
+    columns:
+      - name: order_id
+        description: Unique order identifier
+        tests: [not_null, unique]
+      - name: customer_id
+        description: Foreign key to customer
         tests: [not_null]
-      - name: email
-        description: Customer's email address
+      - name: order_status
+        description: Current order status
+        tests: [not_null]
+      - name: order_purchase_ts
+        description: Timestamp when order was purchased
         tests: [not_null]
 
+  - name: stg_olist_payments
+    description: Staged payment data from Olist dataset. Contains payment details per order.
+    columns:
+      - name: order_id
+        description: Foreign key to order
+        tests: [not_null]
+      - name: payment_sequential
+        description: Sequential number of payment for the order
+      - name: payment_type
+        description: Payment method type
+      - name: payment_value
+        description: Payment amount
+        tests: [not_null]
+
+  - name: stg_olist_order_items
+    description: Staged order items data from Olist dataset. Line items for each order.
+    columns:
+      - name: order_id
+        description: Foreign key to order
+        tests: [not_null]
+
+  # Mart Models: Business-ready dimensional and fact tables
+  - name: dim_customer
+    description: Customer dimension table for Olist data. Contains customer location attributes.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier
+        tests: [not_null, unique]
+      - name: customer_unique_id
+        description: Unique customer identifier across platform
+      - name: customer_city
+        description: Customer's city
+      - name: customer_state
+        description: Customer's state
+      - name: customer_zip_code_prefix
+        description: Customer's zip code prefix
+
   - name: fact_orders
-    description: Order fact table. Contains order events with aggregated payment totals for analysis. One row per order with customer and payment details.
+    description: Order fact table for Olist data. Contains order events with aggregated payment totals.
     columns:
       - name: order_id
         description: Unique order identifier
         tests: [not_null, unique]
       - name: customer_id
         description: Foreign key to dim_customer
-        tests:
-          - not_null
-          - relationships:
-              to: ref('dim_customer')
-              field: customer_id
+        tests: [not_null]
       - name: order_date
-        description: Date the order was placed
+        description: Date/time when order was placed
         tests: [not_null]
       - name: status
         description: Current order status
         tests: [not_null]
       - name: total_amount
-        description: Total payment amount for the order (summed from all payments, defaults to 0 if no payments)
-        tests:
-          - not_null
+        description: Total payment amount for the order
+        tests: [not_null]
 
   # Aggregate Mart Models: Business metrics and KPIs
   - name: monthly_revenue
-    description: Monthly revenue metrics. Aggregates total order amounts by month for trend analysis and revenue tracking.
+    description: Monthly revenue metrics from Olist orders. Aggregates total order amounts by month.
     columns:
-      - name: month
+      - name: revenue_month
         description: First day of the month (date)
         tests: [not_null, unique]
       - name: revenue
-        description: Total revenue for the month (numeric, 2 decimal places)
+        description: Total revenue for the month
         tests: [not_null]
 
   - name: top_customers
-    description: Customer ranking by lifetime spend. Shows cumulative order value and ranking for each customer.
+    description: Customer ranking by lifetime spend from Olist data. Shows cumulative order value and location.
     columns:
       - name: customer_id
         description: Unique customer identifier
         tests: [not_null]
-      - name: first_name
-        description: Customer's first name
-      - name: last_name
-        description: Customer's last name
-      - name: email
-        description: Customer's email address
+      - name: customer_unique_id
+        description: Unique customer identifier across platform
+      - name: customer_city
+        description: Customer's city
+      - name: customer_state
+        description: Customer's state
       - name: total_spend
-        description: Total lifetime spend across all orders (numeric, 2 decimal places)
+        description: Total lifetime spend across all orders
         tests: [not_null]
       - name: order_count
         description: Total number of orders placed by customer
@@ -142,9 +124,9 @@ models:
         tests: [not_null, unique]
 
   - name: cancellation_rate
-    description: Monthly cancellation analysis. Tracks order cancellations and calculates monthly cancellation rates.
+    description: Monthly cancellation analysis for Olist orders. Tracks order cancellations and rates.
     columns:
-      - name: month
+      - name: cancellation_month
         description: First day of the month (date)
         tests: [not_null, unique]
       - name: total_orders

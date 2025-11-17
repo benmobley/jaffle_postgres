@@ -1,5 +1,0 @@
-id,user_id,order_date,status
-101,1,2024-01-05,shipped
-102,2,2024-01-12,returned
-103,2,2024-02-03,shipped
-104,3,2024-03-10,shipped
