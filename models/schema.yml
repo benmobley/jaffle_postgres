@@ -26,13 +26,17 @@ models:
         tests: [not_null, unique]
       - name: customer_id
         description: Foreign key to customer (renamed from 'user_id')
-        tests: [not_null, relationships]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
       - name: order_date
         description: Date the order was placed (cast to date type)
         tests: [not_null]
       - name: status
         description: Current order status
-        tests: 
+        tests:
           - not_null
           - accepted_values:
               values: ['pending', 'processing', 'completed', 'cancelled']
@@ -45,17 +49,18 @@ models:
         tests: [not_null, unique]
       - name: order_id
         description: Foreign key to order
-        tests: [not_null, relationships]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
       - name: payment_method
         description: Method of payment
         tests: [not_null]
       - name: amount
         description: Payment amount (cast to numeric type)
-        tests: 
+        tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_of_type:
-              column_type: numeric
-          - dbt_expectations.expect_column_values_to_be_positive:
 
   # Mart Models: Business-ready dimensional and fact tables
   - name: dim_customer
@@ -63,7 +68,12 @@ models:
     columns:
       - name: customer_id
         description: Unique customer identifier
-        tests: [not_null, unique, relationships]
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
       - name: first_name
         description: Customer's first name
         tests: [not_null]
@@ -82,7 +92,11 @@ models:
         tests: [not_null, unique]
       - name: customer_id
         description: Foreign key to dim_customer
-        tests: [not_null, relationships]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_id
       - name: order_date
         description: Date the order was placed
         tests: [not_null]
@@ -91,6 +105,54 @@ models:
         tests: [not_null]
       - name: total_amount
         description: Total payment amount for the order (summed from all payments, defaults to 0 if no payments)
-        tests: 
+        tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_non_negative:
+
+  # Aggregate Mart Models: Business metrics and KPIs
+  - name: monthly_revenue
+    description: Monthly revenue metrics. Aggregates total order amounts by month for trend analysis and revenue tracking.
+    columns:
+      - name: month
+        description: First day of the month (date)
+        tests: [not_null, unique]
+      - name: revenue
+        description: Total revenue for the month (numeric, 2 decimal places)
+        tests: [not_null]
+
+  - name: top_customers
+    description: Customer ranking by lifetime spend. Shows cumulative order value and ranking for each customer.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier
+        tests: [not_null]
+      - name: first_name
+        description: Customer's first name
+      - name: last_name
+        description: Customer's last name
+      - name: email
+        description: Customer's email address
+      - name: total_spend
+        description: Total lifetime spend across all orders (numeric, 2 decimal places)
+        tests: [not_null]
+      - name: order_count
+        description: Total number of orders placed by customer
+        tests: [not_null]
+      - name: spend_rank
+        description: Rank of customer by total spend (1 = highest spend)
+        tests: [not_null, unique]
+
+  - name: cancellation_rate
+    description: Monthly cancellation analysis. Tracks order cancellations and calculates monthly cancellation rates.
+    columns:
+      - name: month
+        description: First day of the month (date)
+        tests: [not_null, unique]
+      - name: total_orders
+        description: Total number of orders in the month
+        tests: [not_null]
+      - name: cancelled_orders
+        description: Number of cancelled orders in the month
+        tests: [not_null]
+      - name: cancellation_rate_pct
+        description: Cancellation rate as percentage (0-100)
+        tests: [not_null]

@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -9,27 +9,27 @@ repos:
       - id: check-merge-conflict
 
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.32.0
+    rev: v1.37.1
     hooks:
       - id: yamllint
         args: [--config-data, '{extends: default, rules: {line-length: disable}}']
 
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 2.3.0
+    rev: 4.0.0a2
     hooks:
       - id: sqlfluff-lint
         name: SQLFluff Lint
-        args: [--dialect, postgres]
+        args: [--dialect, postgres, --disable-progress-bar]
       - id: sqlfluff-fix
         name: SQLFluff Fix
-        args: [--dialect, postgres]
-        stages: [commit]
+        args: [--dialect, postgres, --disable-progress-bar]
+        stages: [pre-commit]
 
   - repo: local
     hooks:
       - id: dbt-parse
         name: dbt parse
-        entry: dbt parse
+        entry: bash -c 'export POSTGRES_HOST=localhost POSTGRES_USER=postgres POSTGRES_PASSWORD=postgres POSTGRES_PORT=5432 POSTGRES_DBNAME=jaffle && dbt parse'
         language: system
         files: ^(models|macros|tests|dbt_project\.yml|packages\.yml)
         pass_filenames: false
