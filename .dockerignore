@@ -1,0 +1,12 @@
+.git
+.github
+.gitignore
+.pre-commit-config.yaml
+.user.yml
+target/
+logs/
+dbt_packages/
+dbt_internal_packages/
+.DS_Store
+*.md
+image.png

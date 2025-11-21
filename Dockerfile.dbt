@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dbt
+RUN pip install --no-cache-dir dbt-postgres==1.7.0
+
+# Copy dbt project
+COPY dbt_project.yml .
+COPY profiles.yml .
+COPY models/ models/
+COPY seeds/ seeds/
+
+# Set environment variables for dbt
+ENV DBT_PROFILES_DIR=/app
+
+# Default command
+CMD ["dbt", "--help"]

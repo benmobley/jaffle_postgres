@@ -1,21 +1,60 @@
 services:
-  pg:
+  postgres:
     image: postgres:16
-    container_name: jaffle_pg
+    container_name: olist_postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: jaffle
-    ports: ["5432:5432"]
+    ports:
+      - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  metabase:
-    image: metabase/metabase:latest
-    container_name: jaffle_metabase
-    ports: ["3000:3000"]
+  dbt:
+    build:
+      context: .
+      dockerfile: Dockerfile.dbt
+    container_name: olist_dbt
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DBNAME: jaffle
     depends_on:
-      - pg
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./target:/app/target
+      - ./logs:/app/logs
+    profiles:
+      - dbt
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: olist_dashboard
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: jaffle
+    ports:
+      - "8501:8501"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./dashboard.py:/app/dashboard.py
+    restart: unless-stopped
 
 volumes:
   pg_data:
