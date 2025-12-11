@@ -135,6 +135,6 @@ Automated testing runs on every push:
 
 ## 📊 Lineage Screenshot
 
-![dbt Lineage Graph](https://github.com/user-attachments/assets/screenshot-lineage.png)
+<img width="2612" height="902" alt="image" src="https://github.com/user-attachments/assets/6654a95a-8524-4766-bb18-ed3367a7001e" />
 
 The lineage graph shows the complete data flow from raw Olist datasets through staging models to final business marts and analytics tables.
